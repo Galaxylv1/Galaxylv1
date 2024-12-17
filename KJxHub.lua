@@ -1,132 +1,221 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local EspLib = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/x114/RobloxScripts/main/OpenSourceEsp"))()
+local UIS = game:GetService("UserInputService")
+local Lighting = game:GetService("Lighting")
 
 local Window = Rayfield:CreateWindow({
    Name = "🔫 Rivals Script 🔫",
-   Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
+   Icon = 0,
    LoadingTitle = "👑 KJxHub 👑",
    LoadingSubtitle = "by KJ",
-   Theme = "Viow Arabian Mix", -- Check https://docs.sirius.menu/rayfield/configuration/themes
-
-   local EspLib = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/x114/RobloxScripts/main/OpenSourceEsp"))()
+   Theme = "Viow Arabian Mix",
 
    DisableRayfieldPrompts = false,
-   DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
+   DisableBuildWarnings = false,
 
    ConfigurationSaving = {
       Enabled = true,
-      FolderName = nil, -- Create a custom folder for your hub/game
+      FolderName = nil,
       FileName = "KJx Hub"
    },
 
    Discord = {
-      Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
-      Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ABCD would be ABCD
-      RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+      Enabled = false,
+      Invite = "noinvitelink",
+      RememberJoins = true
    },
 
-   KeySystem = true, -- Set this to true to use our key system
+   KeySystem = true,
    KeySettings = {
       Title = "Rivals | Key",
       Subtitle = "Key System",
-      Note = "Key:https://pastebin.com/raw/ZwcdizdA", -- Use this to tell the user how to get a key
-      FileName = "HubKey", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
-      SaveKey = false, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-      GrabKeyFromSite = true, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-      Key = {"https://pastebin.com/raw/ZwcdizdA"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
+      Note = "Key: https://pastebin.com/raw/ZwcdizdA",
+      FileName = "HubKey",
+      SaveKey = false,
+      GrabKeyFromSite = true,
+      Key = {"https://pastebin.com/raw/ZwcdizdA"}
    }
 })
 
-local MainTab = Window:CreateTab("🔫🔫 Aimbot", nil) -- Title, Image
-local MainSection = MainTab:CreateSection("Main")
-
-local Esp = {
-    ESP = false,
+local AimLock = {
+    Enabled = false,
+    Prediction = 0.1,
+    Holding = false,
+    AimPart = "Head"
 }
 
+local SilentAim = {
+    Enabled = false,
+    HitChance = 100,
+    AimPart = {"HumanoidRootPart"},
+    WallCheck = false,
+    Keybind = "T",
+    NotWorkIfFlashed = false
+}
+
+-- Drawing FOV
+local AimLockFov = Drawing.new("Circle")
+AimLockFov.Filled = false
+AimLockFov.Transparency = 1
+AimLockFov.Thickness = 1
+AimLockFov.Color = Color3.fromRGB(0, 0, 255)
+AimLockFov.NumSides = 1000
+AimLockFov.Radius = 70
+AimLockFov.Visible = false
+
+local SilentAimFov = Drawing.new("Circle")
+SilentAimFov.Filled = false
+SilentAimFov.Transparency = 1
+SilentAimFov.Thickness = 1
+SilentAimFov.Color = Color3.fromRGB(255, 0, 0)
+SilentAimFov.NumSides = 1000
+SilentAimFov.Radius = 60
+SilentAimFov.Visible = false
+
+-- MainTab
+local MainTab = Window:CreateTab("🔫🔫 Aimbot", nil)
+local MainSection = MainTab:CreateSection("Main")
+
 Rayfield:Notify({
-   Title = "Excuted Successfully",
-   Content = "Very cool gui",
+   Title = "Executed Successfully",
+   Content = "Very cool GUI",
    Duration = 5,
    Image = nil,
-   Actions = { -- Notification Buttons
+   Actions = {
       Ignore = {
          Name = "Okay!",
          Callback = function()
-         print("The user tapped Okay!")
-      end
-   },
-},
+            print("The user tapped Okay!")
+         end
+      }
+   }
 })
 
-local Button = MainTab:CreateButton({
-   Name = "Aimbot",
-   Callback = function()      
-          
-   end,
-})
-
-local EspTab = Window:CreateTab("Esp", nil) -- Title, Image
-
-
---// Esp Setup
-EspLib.Box = false
-EspLib.BoxColor = Color3.fromRGB(255,255,255)
-EspLib.BoxOutline = false
-EspLib.BoxOutlineColor = Color3.fromRGB(0,0,0)
-EspLib.HealthBar = false
-EspLib.HealthBarSide = "Left"
-EspLib.Names = false
-EspLib.NamesColor = Color3.fromRGB(255,255,255)
-EspLib.NamesOutline = true
-EspLib.NamesFont = 2
-EspLib.NamesSize = 17
-
---// Esp
-local EspSection = EspTab:CreateSection("Esp")
-local Toggle = EspTab:CreateToggle({
-    Name = "Enabled",
+local Toggle = MainTab:CreateToggle({
+    Name = "Silent Aim",
     CurrentValue = false,
-    Flag = "EspToggle", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Flag = "SilentAimToggle",
     Callback = function(Value)
-        EspLib.Box = value
-    end,
- })
- local ColorPicker = EspTab:CreateColorPicker({
-    Name = "Color",
-    Color = Color3.fromRGB(255,255,255),
-    Flag = "ColorToggle", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-    Callback = function(Value)
-        EspLib.BoxColor = value
-        EspLib.NameColor = value
+        SilentAim.Enabled = Value
     end
 })
 
-local Toggle = EspTab:CreateToggle({
+local Keybind = MainTab:CreateKeybind({
+    Name = "Silent Aim Keybind",
+    CurrentKeybind = "X",
+    HoldToInteract = false,
+    Flag = "SilentAimKeybind",
+    Callback = function(Keybind)
+        SilentAim.Enabled = not SilentAim.Enabled
+        print("Silent Aim Enabled:", SilentAim.Enabled)
+    end
+})
+
+local ToggleFov = MainTab:CreateToggle({
+    Name = "FOV Enabled",
+    CurrentValue = false,
+    Flag = "SilentAimFovToggle",
+    Callback = function(Value)
+        SilentAimFov.Visible = Value
+        while Value do
+            SilentAimFov.Position = UIS:GetMouseLocation()
+            task.wait()
+        end
+    end
+})
+
+local FovSlider = MainTab:CreateSlider({
+    Name = "FOV Radius",
+    Range = {0, 1000},
+    Increment = 10,
+    Suffix = "px",
+    CurrentValue = 60,
+    Flag = "FovRadius",
+    Callback = function(Value)
+        SilentAimFov.Radius = Value
+    end
+})
+
+local ColorPicker = MainTab:CreateColorPicker({
+    Name = "FOV Color",
+    Color = Color3.fromRGB(255, 255, 255),
+    Flag = "FovColor",
+    Callback = function(Value)
+        SilentAimFov.Color = Value
+    end
+})
+
+local HitChanceSlider = MainTab:CreateSlider({
+    Name = "Hit Chance",
+    Range = {0, 100},
+    Increment = 10,
+    Suffix = "%",
+    CurrentValue = 100,
+    Flag = "HitChance",
+    Callback = function(Value)
+        SilentAim.HitChance = Value
+    end
+})
+
+local AimPartsDropdown = MainTab:CreateDropdown({
+    Name = "Aim Parts",
+    Options = {"HumanoidRootPart", "Head", "RightUpperArm", "LeftUpperArm", "RightLowerLeg", "LeftLowerLeg"},
+    CurrentOption = {"HumanoidRootPart"},
+    MultipleOptions = true,
+    Flag = "AimParts",
+    Callback = function(Options)
+        SilentAim.AimPart = Options
+    end
+})
+
+-- EspTab
+local EspTab = Window:CreateTab("Esp", nil)
+local EspSection = EspTab:CreateSection("Esp")
+
+local EspToggle = EspTab:CreateToggle({
+    Name = "Enabled",
+    CurrentValue = false,
+    Flag = "EspToggle",
+    Callback = function(Value)
+        EspLib.Box = Value
+    end
+})
+
+local ColorPickerEsp = EspTab:CreateColorPicker({
+    Name = "ESP Color",
+    Color = Color3.fromRGB(255, 255, 255),
+    Flag = "EspColor",
+    Callback = function(Value)
+        EspLib.BoxColor = Value
+        EspLib.NamesColor = Value
+    end
+})
+
+local HealthBarToggle = EspTab:CreateToggle({
     Name = "Health Bar",
     CurrentValue = false,
-    Flag = "HealthBarToggle", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Flag = "HealthBarToggle",
     Callback = function(Value)
-    EspLib.HealthBar = value
-    end,
- })
+        EspLib.HealthBar = Value
+    end
+})
 
-    local Dropdown = EspTab:CreateDropdown({
-        Name = "Health Bar Position",
-        Options = {"Left","Bottom", "Right"},
-        CurrentOption = {"Left"},
-        MultipleOptions = false,
-        Flag = "HealthBarPostition", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-        Callback = function(Options)
-            HealthBarPosDropdown:OnChanged(function(value)
-                EspLib.HealthBarSide = value
-        end,
-     })
+local HealthBarDropdown = EspTab:CreateDropdown({
+    Name = "Health Bar Position",
+    Options = {"Left", "Bottom", "Right"},
+    CurrentOption = {"Left"},
+    MultipleOptions = false,
+    Flag = "HealthBarPosition",
+    Callback = function(Option)
+        EspLib.HealthBarSide = Option[1]
+    end
+})
 
-local Toggle = EspTab:CreateToggle({
+local NamesToggle = EspTab:CreateToggle({
     Name = "Names",
     CurrentValue = false,
-    Flag = "NamesToggle", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Flag = "NamesToggle",
     Callback = function(Value)
-    EspLib.Names = value
-    end,
- })
+        EspLib.Names = Value
+    end
+})

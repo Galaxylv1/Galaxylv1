@@ -1,30 +1,18 @@
-local Library = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-
-local Window = Library:CreateWindow({
-    Title = "KJ Hub",
-    SubTitle = "KJ",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
-    Theme = "Viow Arabian Mix",
-    MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
-}) 
-
 --// Libraries
 local Library = loadstring(game:HttpGetAsync("https://github.com/ActualMasterOogway/Fluent-Renewed/releases/latest/download/Fluent.luau", true))()
 local SaveManager = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/SaveManager.luau"))()
 local InterfaceManager = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/InterfaceManager.luau"))()
 local EspLib = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/x114/RobloxScripts/main/OpenSourceEsp"))()
-local WebhookURL = "https://discord.com/api/webhooks/1313994383225393273/8mQC9mq-cMcqpi3RxY-WK89tKqatIzK-RbnJnu9KT-VV-vZbk7WFL2zqadaJNevzk9ti"
+local WebhookURL = "https://discord.com/api/webhooks/1318830292328251392/htyr7paSS4SvDd7hIY10LdYQOyTJrM5-3BJ3_yu5iXSB1GdZiZgxoA67mrYVm0zJcg5z"
 
 --// Variables
 local Script = {
-    version = "v2.0.15",
+    version = "v1.0.0",
     ver_name = "FREE"
 }
 local Window = Library:CreateWindow{
-    Title = Script.version.." "..Script.ver_name.." | StechHub",
-    SubTitle = "discord.gg/TFMa5taUn5",
+    Title = Script.version.." "..Script.ver_name.." | KJ Hub",
+    SubTitle = "https://discord.gg/vBqcq25C9m",
     TabWidth = 160,
     Size = UDim2.fromOffset(600, 700),
     Resize = true,
@@ -37,7 +25,7 @@ local Window = Library:CreateWindow{
 
 
 local work = false
-local _Path = "StechHub"
+local _Path = "KJHub"
 local _RivalsPath = _Path.."/Rivals"
 local _ConfigPath = _RivalsPath.."/settings" -- stechRivals/settings
 makefolder(_ConfigPath)
